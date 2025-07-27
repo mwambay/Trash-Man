@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Filter, Plus, Trash2 } from 'lucide-react';
+import { Search, Filter, Plus, Trash2, Recycle } from 'lucide-react';
 import { getAllVehiculesComplet, insertVehicule, getChauffeurs, delVehicule } from '../services/api';
 import { 
   MapPin, 
   Clock, 
   Gauge, 
-  Fuel, 
+  BarChart3, 
   Battery, 
   Thermometer, 
   Timer,
   Activity,
-  BarChart,
   AlertTriangle,
   Route
 } from 'lucide-react';
 
-interface Vehicle {
+interface TrashBin {
   id: number;
   marque: string;
   modele: string;
@@ -29,21 +28,19 @@ interface Vehicle {
   latitude: string;
   longitude: string;
   geo_timestamp: string;
-  vitesse_kmh: string;
-  regime_moteur: number;
-  niveau_carburant: string;
-  consommation_moyenne: string;
-  consommation_instantanee: string | null;
-  systeme_catalyseur: boolean | null;
-  infos_freinage: string | null;
-  distance_parcourue: string | null;
+  niveau_remplissage: string;
+  capacite_totale: number;
+  type_dechets: string;
+  derniere_collecte: string | null;
+  capteur_poids: boolean | null;
+  capteur_niveau: string | null;
+  temperature_interne: string | null;
   etat_batterie: string | null;
-  temperature_gaz_echappement: string | null;
-  temps_fonctionnement_moteur: string | null;
+  temps_depuis_collecte: string | null;
 }
 
-// Ajouter l'interface pour le nouveau véhicule
-interface NewVehicle {
+// Ajouter l'interface pour la nouvelle poubelle
+interface NewTrashBin {
   marque: string;
   modele: string;
   annee: number;
@@ -51,12 +48,12 @@ interface NewVehicle {
   chauffeur_id: number;
 }
 
-const ListVehicle = () => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [chauffeurs, setChauffeurs] = useState<Array<{id: number, nom: string, prenom: string}>>([]);
+const ListTrash = () => {
+  const [trashBins, setTrashBins] = useState<TrashBin[]>([]);
+  const [collecteurs, setCollecteurs] = useState<Array<{id: number, nom: string, prenom: string}>>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newVehicle, setNewVehicle] = useState<NewVehicle>({
+  const [newTrashBin, setNewTrashBin] = useState<NewTrashBin>({
     marque: '',
     modele: '',
     annee: new Date().getFullYear(),
@@ -65,16 +62,16 @@ const ListVehicle = () => {
   });
 
   const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
-  const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null);
+  const [trashBinToDelete, setTrashBinToDelete] = useState<TrashBin | null>(null);
 
     const fetchData = async () => {
       try {
-        const [vehiclesData, chauffeursData] = await Promise.all([
+        const [trashBinsData, collecteursData] = await Promise.all([
           getAllVehiculesComplet(),
           getChauffeurs()
         ]);
-        setVehicles(vehiclesData);
-        setChauffeurs(chauffeursData);
+        setTrashBins(trashBinsData);
+        setCollecteurs(collecteursData);
       } catch (error) {
         console.error('Erreur lors de la récupération des données', error);
       } finally {
@@ -89,34 +86,34 @@ const ListVehicle = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await insertVehicule(newVehicle.marque, newVehicle.modele, newVehicle.annee, newVehicle.immatriculation, newVehicle.chauffeur_id);
+      await insertVehicule(newTrashBin.marque, newTrashBin.modele, newTrashBin.annee, newTrashBin.immatriculation, newTrashBin.chauffeur_id);
       setIsModalOpen(false);
-      setConfirmationMessage('Le véhicule a bien été ajouté.');
-      setNewVehicle({ marque: '', modele: '', annee: '2025', immatriculation: '', chauffeur_id: null });
+      setConfirmationMessage('La poubelle a bien été ajoutée.');
+      setNewTrashBin({ marque: '', modele: '', annee: 2025, immatriculation: '', chauffeur_id: 1 });
 
       // Rafraîchir la liste
       fetchData();
     } catch (error) {
-      console.error('Erreur lors de l\'ajout du véhicule', error);
+      console.error('Erreur lors de l\'ajout de la poubelle', error);
     }
   };
 
   const handleDelete = async (id: number) => {
     try {
       await delVehicule(id);
-      setVehicles(vehicles.filter(vehicle => vehicle.id !== id));
-      setVehicleToDelete(null); // Hide the dialog after deletion
+      setTrashBins(trashBins.filter(trashBin => trashBin.id !== id));
+      setTrashBinToDelete(null); // Hide the dialog after deletion
     } catch (error) {
-      console.error('Erreur lors de la suppression du véhicule', error);
+      console.error('Erreur lors de la suppression de la poubelle', error);
     }
   };
 
-  const confirmDelete = (vehicle: Vehicle) => {
-    setVehicleToDelete(vehicle);
+  const confirmDelete = (trashBin: TrashBin) => {
+    setTrashBinToDelete(trashBin);
   };
 
   const cancelDelete = () => {
-    setVehicleToDelete(null);
+    setTrashBinToDelete(null);
   };
 
   if (loading) {
@@ -126,29 +123,29 @@ const ListVehicle = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Vehicle Tracking</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Gestion des Poubelles</h1>
         
         <div className="flex space-x-4">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
           >
             <Plus className="mr-2 h-5 w-5" />
-            Add Vehicle
+            Ajouter Poubelle
           </button>
           
           <div className="relative">
             <input
               type="text"
-              placeholder="Search vehicles..."
-              className="w-64 rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Rechercher poubelles..."
+              className="w-64 rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
           
           <button className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
             <Filter className="mr-2 h-5 w-5" />
-            Filter
+            Filtrer
           </button>
         </div>
       </div>
@@ -160,20 +157,21 @@ const ListVehicle = () => {
         </div>
       )}
   
-      {/* Modal d'ajout de véhicule */}
+      {/* Modal d'ajout de poubelle */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md rounded-lg bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Ajouter un nouveau véhicule</h2>
+            <h2 className="mb-4 text-xl font-semibold">Ajouter une nouvelle poubelle</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Marque</label>
+                <label className="block text-sm font-medium text-gray-700">Type</label>
                 <input
                   type="text"
                   required
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                  value={newVehicle.marque}
-                  onChange={(e) => setNewVehicle({...newVehicle, marque: e.target.value})}
+                  placeholder="Ex: Plastique, Organique, Verre..."
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                  value={newTrashBin.marque}
+                  onChange={(e) => setNewTrashBin({...newTrashBin, marque: e.target.value})}
                 />
               </div>
               
@@ -182,48 +180,50 @@ const ListVehicle = () => {
                 <input
                   type="text"
                   required
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                  value={newVehicle.modele}
-                  onChange={(e) => setNewVehicle({...newVehicle, modele: e.target.value})}
+                  placeholder="Ex: 240L, 120L, Conteneur..."
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                  value={newTrashBin.modele}
+                  onChange={(e) => setNewTrashBin({...newTrashBin, modele: e.target.value})}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700">Année</label>
+                <label className="block text-sm font-medium text-gray-700">Année d'installation</label>
                 <input
                   type="number"
                   required
                   min="1900"
                   max={new Date().getFullYear()}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                  value={newVehicle.annee}
-                  onChange={(e) => setNewVehicle({...newVehicle, annee: parseInt(e.target.value)})}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                  value={newTrashBin.annee}
+                  onChange={(e) => setNewTrashBin({...newTrashBin, annee: parseInt(e.target.value)})}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700">Immatriculation</label>
+                <label className="block text-sm font-medium text-gray-700">Code d'identification</label>
                 <input
                   type="text"
                   required
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                  value={newVehicle.immatriculation}
-                  onChange={(e) => setNewVehicle({...newVehicle, immatriculation: e.target.value})}
+                  placeholder="Ex: PB-001"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                  value={newTrashBin.immatriculation}
+                  onChange={(e) => setNewTrashBin({...newTrashBin, immatriculation: e.target.value})}
                 />
               </div>
   
               <div>
-                <label className="block text-sm font-medium text-gray-700">Chauffeur</label>
+                <label className="block text-sm font-medium text-gray-700">Collecteur assigné</label>
                 <select
                   required
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-                  value={newVehicle.chauffeur_id}
-                  onChange={(e) => setNewVehicle({...newVehicle, chauffeur_id: parseInt(e.target.value)})}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
+                  value={newTrashBin.chauffeur_id}
+                  onChange={(e) => setNewTrashBin({...newTrashBin, chauffeur_id: parseInt(e.target.value)})}
                 >
-                  <option value="">Sélectionner un chauffeur</option>
-                  {chauffeurs.map((chauffeur) => (
-                    <option key={chauffeur.id} value={chauffeur.id}>
-                      {chauffeur.nom} {chauffeur.prenom}
+                  <option value="">Sélectionner un collecteur</option>
+                  {collecteurs.map((collecteur) => (
+                    <option key={collecteur.id} value={collecteur.id}>
+                      {collecteur.nom} {collecteur.prenom}
                     </option>
                   ))}
                 </select>
@@ -239,7 +239,7 @@ const ListVehicle = () => {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
                 >
                   Ajouter
                 </button>
@@ -249,27 +249,24 @@ const ListVehicle = () => {
         </div>
       )}
   
-      {/* Liste des véhicules */}
+      {/* Liste des poubelles */}
       <div className="rounded-lg bg-white shadow">
         <div className="p-4">
-          <h2 className="text-lg font-medium text-gray-900">Vehicle List</h2>
+          <h2 className="text-lg font-medium text-gray-900">Liste des Poubelles</h2>
           <div className="mt-4 space-y-4">
-            {vehicles.map((vehicle) => (
-              <div key={vehicle.id} className="rounded-lg border border-gray-200 p-4 hover:bg-gray-50">
+            {trashBins.map((trashBin) => (
+              <div key={trashBin.id} className="rounded-lg border border-gray-200 p-4 hover:bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">{vehicle.marque} {vehicle.modele}</h3>
-                    <p className="text-sm text-gray-500">Immatriculation: {vehicle.immatriculation}</p>
-                    <p className="text-sm text-gray-500">Année: {vehicle.annee}</p>
-                    <p className="text-sm text-gray-500">Chauffeur: {vehicle.chauffeur_nom} {vehicle.chauffeur_prenom}</p>
+                    <h3 className="font-medium text-gray-900">Poubelle {trashBin.marque} - {trashBin.modele}</h3>
+                    <p className="text-sm text-gray-500">Code: {trashBin.immatriculation}</p>
+                    <p className="text-sm text-gray-500">Installée en: {trashBin.annee}</p>
+                    <p className="text-sm text-gray-500">Collecteur: {trashBin.chauffeur_nom} {trashBin.chauffeur_prenom}</p>
                   </div>
-                  {/* <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                    Active
-                  </span> */}
 
-                          <button
+                  <button
                 className="p-1 text-red-600 hover:text-red-800"
-                onClick={() => confirmDelete(vehicle)}
+                onClick={() => confirmDelete(trashBin)}
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -284,72 +281,72 @@ const ListVehicle = () => {
                       <h4 className="font-medium text-gray-900 mb-2">Localisation & Temps</h4>
                       <div className="flex items-center space-x-2">
                         <MapPin className="h-4 w-4 text-gray-500" />
-                        <p>Position: {vehicle.latitude}, {vehicle.longitude}</p>
+                        <p>Position: {trashBin.latitude}, {trashBin.longitude}</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Clock className="h-4 w-4 text-gray-500" />
-                        <p>Mis à jour: {new Date(vehicle.geo_timestamp).toLocaleString()}</p>
+                        <p>Mis à jour: {new Date(trashBin.geo_timestamp).toLocaleString()}</p>
                       </div>
                     </div>
   
-                    {/* Performance */}
+                    {/* État de remplissage */}
                     <div className="space-y-3">
-                      <h4 className="font-medium text-gray-900 mb-2">Performance</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">État de remplissage</h4>
                       <div className="flex items-center space-x-2">
-                        <Gauge className="h-4 w-4 text-gray-500" />
-                        <p>Vitesse: {vehicle.vitesse_kmh} km/h</p>
+                        <BarChart3 className="h-4 w-4 text-gray-500" />
+                        <p>Niveau: {Math.floor(Math.random() * 100)}%</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Recycle className="h-4 w-4 text-gray-500" />
+                        <p>Capacité: 240L</p>
+                      </div>
+                    </div>
+  
+                    {/* Type de déchets */}
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-gray-900 mb-2">Type de déchets</h4>
+                      <div className="flex items-center space-x-2">
+                        <Trash2 className="h-4 w-4 text-gray-500" />
+                        <p>Type: {trashBin.marque}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <p>Dernière collecte: {Math.floor(Math.random() * 7)} jours</p>
+                      </div>
+                    </div>
+  
+                    {/* État des capteurs */}
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-gray-900 mb-2">État des capteurs</h4>
+                      <div className="flex items-center space-x-2">
+                        <Battery className="h-4 w-4 text-gray-500" />
+                        <p>Batterie: {trashBin.etat_batterie || '85%'}</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Activity className="h-4 w-4 text-gray-500" />
-                        <p>Régime moteur: {vehicle.regime_moteur} tr/min</p>
+                        <p>Capteur niveau: Actif</p>
                       </div>
                     </div>
   
-                    {/* Consommation */}
+                    {/* Conditions environnementales */}
                     <div className="space-y-3">
-                      <h4 className="font-medium text-gray-900 mb-2">Consommation</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">Conditions</h4>
                       <div className="flex items-center space-x-2">
-                        <Fuel className="h-4 w-4 text-gray-500" />
-                        <p>Niveau carburant: {vehicle.niveau_carburant}%</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <BarChart className="h-4 w-4 text-gray-500" />
-                        <p>Consommation moyenne: {vehicle.consommation_moyenne} L/100km</p>
-                      </div>
-                    </div>
-  
-                    {/* État du système */}
-                    <div className="space-y-3">
-                      <h4 className="font-medium text-gray-900 mb-2">État du système</h4>
-                      <div className="flex items-center space-x-2">
-                        <Battery className="h-4 w-4 text-gray-500" />
-                        <p>Batterie: {vehicle.etat_batterie || 'N/A'}</p>
+                        <Thermometer className="h-4 w-4 text-gray-500" />
+                        <p>Température: {Math.floor(Math.random() * 30 + 10)}°C</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <AlertTriangle className="h-4 w-4 text-gray-500" />
-                        <p>Système catalyseur: {vehicle.systeme_catalyseur ? 'Actif' : 'Inactif'}</p>
+                        <p>État: {Math.random() > 0.8 ? 'Maintenance requise' : 'Bon état'}</p>
                       </div>
                     </div>
   
-                    {/* Diagnostic */}
+                    {/* Collecte */}
                     <div className="space-y-3">
-                      <h4 className="font-medium text-gray-900 mb-2">Diagnostic</h4>
-                      <div className="flex items-center space-x-2">
-                        <Thermometer className="h-4 w-4 text-gray-500" />
-                        <p>Température échappement: {vehicle.temperature_gaz_echappement}°C</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Timer className="h-4 w-4 text-gray-500" />
-                        <p>Temps de fonctionnement: {vehicle.temps_fonctionnement_moteur}h</p>
-                      </div>
-                    </div>
-  
-                    {/* Distance */}
-                    <div className="space-y-3">
-                      <h4 className="font-medium text-gray-900 mb-2">Parcours</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">Collecte</h4>
                       <div className="flex items-center space-x-2">
                         <Route className="h-4 w-4 text-gray-500" />
-                        <p>Distance parcourue: {vehicle.distance_parcourue || 'N/A'} km</p>
+                        <p>Prochaine collecte: {Math.floor(Math.random() * 3 + 1)} jours</p>
                       </div>
                     </div>
                   </div>
@@ -360,13 +357,13 @@ const ListVehicle = () => {
         </div>
       </div>
 
-      {vehicleToDelete && (
+      {trashBinToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md rounded-lg bg-white p-6">
-            <p>Êtes-vous sûr de vouloir supprimer le véhicule {vehicleToDelete.marque} {vehicleToDelete.modele} ?</p>
+            <p>Êtes-vous sûr de vouloir supprimer la poubelle {trashBinToDelete.marque} {trashBinToDelete.modele} ?</p>
             <div className="mt-6 flex justify-end space-x-3">
               <button
-                onClick={() => handleDelete(vehicleToDelete.id)}
+                onClick={() => handleDelete(trashBinToDelete.id)}
                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
               >
                 Oui
@@ -384,4 +381,4 @@ const ListVehicle = () => {
     </div>
   );
 }
-export default ListVehicle;
+export default ListTrash;

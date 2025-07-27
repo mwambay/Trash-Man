@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Car, LayoutDashboard, Bell, FileBarChart, Users, Menu, X, MapPin, User2} from 'lucide-react';
+import { Trash2, LayoutDashboard, Bell, FileBarChart, Users, Menu, X, MapPin, User2} from 'lucide-react';
 import { useState } from 'react';
-import { icon } from 'leaflet';
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -10,9 +9,9 @@ const Layout = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    {name: "Liste des Vehicules", href: '/list', icon: Car},
-    {name: 'Liste des Chauffeurs', href: '/listChauff', icon: User2 },
-    { name: 'Carte des Vehicules', href: '/tracking', icon: MapPin },
+    {name: "Liste des Poubelles", href: '/list', icon: Trash2},
+    {name: 'Liste des Collecteurs', href: '/listCollector', icon: User2 },
+    { name: 'Carte des Poubelles', href: '/tracking', icon: MapPin },
     { name: 'Alertes', href: '/alerts', icon: Bell },
     { name: 'Rapports', href: '/reports', icon: FileBarChart },
     { name: 'Gestion utilisateurs', href: '/users', icon: Users },
@@ -36,7 +35,7 @@ const Layout = () => {
       >
         <div className="flex h-16 items-center justify-center border-b">
           <img src="/icons/logo.png" alt="Okapie Technologie Logo" className="h-92 w-12" />
-          <span className="ml-2 text-xl font-bold text-gray-900">Okapie Technologie</span>
+          <span className="ml-2 text-xl font-bold text-green-700">EcoTrack</span>
         </div>
 
         <nav className="mt-6 px-3">
@@ -48,7 +47,7 @@ const Layout = () => {
                 to={item.href}
                 className={`mt-2 flex items-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                   location.pathname === item.href
-                    ? 'bg-blue-50 text-blue-600'
+                    ? 'bg-green-50 text-green-600'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >

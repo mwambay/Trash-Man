@@ -15,7 +15,7 @@ const UserManagement = () => {
       id: 2,
       name: 'Jane Smith',
       email: 'jane@example.com',
-      role: 'Manager',
+      role: 'Superviseur',
       status: 'Active',
       lastActive: '1 hour ago',
     },
@@ -23,7 +23,7 @@ const UserManagement = () => {
       id: 3,
       name: 'Mike Johnson',
       email: 'mike@example.com',
-      role: 'Driver',
+      role: 'Collecteur',
       status: 'Inactive',
       lastActive: '1 day ago',
     },
@@ -32,11 +32,11 @@ const UserManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">User Management</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Gestion des Utilisateurs</h1>
         
-        <button className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+        <button className="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
           <UserPlus className="mr-2 h-5 w-5" />
-          Add User
+          Ajouter Utilisateur
         </button>
       </div>
 
@@ -49,16 +49,16 @@ const UserManagement = () => {
                   <thead>
                     <tr>
                       <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
-                        User
+                        Utilisateur
                       </th>
                       <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Role
+                        Rôle
                       </th>
                       <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Status
+                        Statut
                       </th>
                       <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Last Active
+                        Dernière Activité
                       </th>
                       <th className="relative py-3.5 pl-3 pr-4">
                         <span className="sr-only">Actions</span>
@@ -101,7 +101,7 @@ const UserManagement = () => {
                           {user.lastActive}
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
-                          <button className="text-blue-600 hover:text-blue-900 mr-4">
+                          <button className="text-green-600 hover:text-green-900 mr-4">
                             <Edit2 className="h-5 w-5" />
                           </button>
                           <button className="text-red-600 hover:text-red-900">

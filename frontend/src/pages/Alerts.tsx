@@ -5,22 +5,22 @@ const Alerts = () => {
   const alerts = [
     {
       id: 1,
-      type: 'speed',
-      message: 'Vehicle ABC-123 exceeded speed limit (90 km/h)',
+      type: 'full',
+      message: 'Poubelle PB-045 est pleine (95% de capacité)',
       timestamp: '5 minutes ago',
       severity: 'high',
     },
     {
       id: 2,
-      type: 'geofence',
-      message: 'Vehicle XYZ-789 left designated area',
+      type: 'maintenance',
+      message: 'Poubelle PB-123 nécessite une maintenance',
       timestamp: '15 minutes ago',
       severity: 'medium',
     },
     {
       id: 3,
-      type: 'maintenance',
-      message: 'Vehicle DEF-456 requires scheduled maintenance',
+      type: 'collection',
+      message: 'Zone Secteur 7 programmée pour collecte demain',
       timestamp: '1 hour ago',
       severity: 'low',
     },
@@ -55,12 +55,12 @@ const Alerts = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Alerts</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Alertes</h1>
         
         <div className="flex space-x-4">
-          <button className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+          <button className="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
             <CheckCircle className="mr-2 h-5 w-5" />
-            Mark All as Read
+            Marquer comme lues
           </button>
         </div>
       </div>

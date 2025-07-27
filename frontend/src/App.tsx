@@ -2,12 +2,12 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
-import VehicleTracking from './pages/VehicleTracking';
+import TrashTracking from './pages/TrashTracking';
 import Alerts from './pages/Alerts';
-import VehicleList from './pages/ListVehicle';
+import TrashList from './pages/ListTrash';
 import Reports from './pages/Reports';
 import UserManagement from './pages/UserManagement';
-import ListChauffeur  from './pages/ListChauffeurs';
+import ListCollector from './pages/ListCollectors';
 
 function App() {
   return (
@@ -15,12 +15,12 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
-          <Route path="tracking" element={<VehicleTracking />} />
+          <Route path="tracking" element={<TrashTracking />} />
           <Route path="alerts" element={<Alerts />} />
           <Route path="reports" element={<Reports />} />
           <Route path="users" element={<UserManagement />} />
-          <Route path='list' element={<VehicleList/>}/>
-          <Route path='listChauff' element={<ListChauffeur/>}/>
+          <Route path='list' element={<TrashList/>}/>
+          <Route path='listCollector' element={<ListCollector/>}/>
         </Route>
       </Routes>
     </Router>
